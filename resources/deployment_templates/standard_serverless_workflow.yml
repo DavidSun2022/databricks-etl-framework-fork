@@ -1,0 +1,35 @@
+# The main job for the sales_order pipeline
+resources:
+  jobs:
+    ingestion_job:
+    # [User Input Required] 
+      name: workflow name
+      description: describe what the workflow does
+    # [User Input Required] 
+      schedule:
+        # Run every day at 8:37 AM MST
+        quartz_cron_expression: "44 37 11 * * ?"
+        timezone_id: America/Boise
+    # [User Input Required] 
+      tags:
+        envionment: ${var.env}
+        deployment: dab
+        dataset: nyctaxi
+        domain: samples
+    # [User Input Required] 
+      email_notifications:
+        on_failure:
+          - guanjie.shen@databricks.com
+    # [User Input Required] 
+      tasks:
+        - task_key: csv_ingest
+          notebook_task:
+              notebook_path: ../../pipelines/ingest_templates/csv_ingestion_template
+        - task_key: json_ingest
+          depends_on:
+            - task_key: csv_ingest
+          notebook_task:
+            notebook_path: ../../pipelines/ingest_templates/json_ingestion_template
+    # Do not Edit Below This Line 
+      queue:
+        enabled: true

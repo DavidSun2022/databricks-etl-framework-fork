@@ -49,7 +49,7 @@ df.createOrReplaceTempView("tmp_view")
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC SELECT *
+# MAGIC SELECT * 
 # MAGIC FROM
 # MAGIC tmp_view
 
@@ -69,8 +69,8 @@ schema = ""
 table = ""
 
 # [User Input Required] Configs
-write_mode = WriteMode.SCD1
-refresh_mode = RefreshMode.FULL
+write_mode = WriteMode.APPEND
+refresh_mode = RefreshMode.INCREMENTAL
 trigger_mode = TriggerMode.TRIGGERED
 
 # COMMAND ----------
@@ -81,7 +81,6 @@ csv_writer.write_uc_external_table(
     uc_catalog=catalog,
     uc_schema=schema,
     uc_table=table,
-    owner="",
     write_mode=write_mode,
     refresh_mode=refresh_mode,
     trigger_mode=trigger_mode,
