@@ -1,6 +1,7 @@
 from typing import Protocol, List
 from pyspark.sql import DataFrame
 from delta.tables import *
+from abc import ABC, abstractmethod
 
 
 class WriteMode(Enum):
@@ -8,15 +9,17 @@ class WriteMode(Enum):
     UC_EXTERNAL_TABLE = "ucexternaltable"
     UC_MANAGED_TABLE = "ucmanagedtable"
 
+
 class TriggerMode(Enum):
     """
     If batch it should use the Trigger.Available() API. Otherwise no trigger should be used.
     """
+
     CONTINUOUS = "continuous"
     BATCH = "batch"
 
 
-class StreamingDeltaWriterProtocol(Protocol):
+class StreamingDeltaWriter(ABC):
     """
     A class to write data into the Data Lake in Delta format. It supports writing directly to the Data Lake, UC External Tables, and UC Managed Tables.
 
@@ -62,12 +65,29 @@ class StreamingDeltaWriterProtocol(Protocol):
         Merges the DataFrame to the Data Lake or Table using SCD Type 2. This will always be an incremental operation.
     """
 
-    df: DataFrame
-    write_mode: WriteMode = WriteMode.UC_EXTERNAL_TABLE
-    trigger_mode: TriggerMode = TriggerMode.BATCH
-    data_lake_path: str = None
-    uc_namespace: str = None
+    @classmethod
+    def __init__(
+        self,
+        df: DataFrame,
+        write_mode: WriteMode = WriteMode.UC_EXTERNAL_TABLE,
+        trigger_mode: TriggerMode = TriggerMode.BATCH,
+        data_lake_path: str = None,
+        uc_namespace: str = None,
+    ):
+        self.df = df
+        self.write_mode = write_mode
+        self.trigger_mode = trigger_mode
+        self.data_lake_path = data_lake_path
+        self.uc_namespace = uc_namespace
+        
+        if write_mode == WriteMode.DATA_LAKE_PATH and data_lake_path is None:
+            raise ValueError("Data Lake Path is required for Write Mode: DATA_LAKE_PATH")
+        if write_mode == WriteMode.UC_EXTERNAL_TABLE and data_lake_path is None and uc_namespace is None:
+            raise ValueError("Data Lake Path and UC Namespace are required for Write Mode: UC_EXTERNAL_TABLE")
+        if write_mode == WriteMode.UC_MANAGED_TABLE and uc_namespace is None:
+            raise ValueError("UC Namespace is required for Write Mode: UC_MANAGED_TABLE")        
 
+    @abstractmethod
     def __generate_streaming_checkpoint_path(self) -> str:
         """
         Generates a unique location within ADLS to store the streaming checkpoint for the asset.
@@ -81,6 +101,7 @@ class StreamingDeltaWriterProtocol(Protocol):
         """
         pass
 
+    @abstractmethod
     def __reset_streaming_checkpoint_path(self, path: str) -> None:
         """
         Resets the streaming checkpoint path for a given asset. This will be required for Overwrite operations.
@@ -88,6 +109,7 @@ class StreamingDeltaWriterProtocol(Protocol):
         """
         pass
 
+    @abstractmethod
     def __add_hash_cols(self) -> DataFrame:
         """
         Generates Suncor's hash columns for data validation.
@@ -97,18 +119,21 @@ class StreamingDeltaWriterProtocol(Protocol):
         """
         pass
 
+    @abstractmethod
     def __read_sink_delta_path(path: str) -> DeltaTable:
         """
         Reads an existing Delta Table using the Data Lake specified path. This will be required for the SCD operations.
         """
         pass
 
+    @abstractmethod
     def write_append(self):
         """
         Appends the DataFrame to the Data Lake or Table. This will always be an incremental operation.
         """
         pass
 
+    @abstractmethod
     def write_overwrite(self):
         """
         Overwrites the existing Table or Data Lake location with the DataFrame. This will always be an overwrite operation.
@@ -118,6 +143,7 @@ class StreamingDeltaWriterProtocol(Protocol):
         """
         pass
 
+    @abstractmethod
     def write_scd_1(self, keys: List[str], seq_col: str, except_cols: List[str] = None):
         """
         Merges the existing DataFrame using SCD Type I with the Data Lake or Table. This will always be an overwrite operation.
@@ -128,6 +154,7 @@ class StreamingDeltaWriterProtocol(Protocol):
         # Can leverage: https://github.com/MrPowers/mack?tab=readme-ov-file#type-2-scd-upserts
         pass
 
+    @abstractmethod
     def write_scd_2(self, keys: List[str], seq_col: str, except_cols: List[str] = None):
         """
         Merges the existing DataFrame using SCD Type II with the Data Lake or Table. This will always be an overwrite operation.
