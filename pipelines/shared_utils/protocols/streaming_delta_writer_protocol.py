@@ -53,11 +53,11 @@ class StreamingDeltaWriterProtocol(Protocol):
         returns: None
         Overwrites the DataFrame to the Data Lake or Table. This will always be an complete operation.
 
-    write_sdc1(self, keys: List[str], seq_col: str, except_cols: List[str] = None)->None
+    write_scd1(self, keys: List[str], seq_col: str, except_cols: List[str] = None)->None
         returns: None
         Merges the DataFrame to the Data Lake or Table using SCD Type 1. This will always be an incremental operation.
 
-    write_sdc2(self, keys: List[str], seq_col: str, except_cols: List[str] = None)->None
+    write_scd2(self, keys: List[str], seq_col: str, except_cols: List[str] = None)->None
         returns: None
         Merges the DataFrame to the Data Lake or Table using SCD Type 2. This will always be an incremental operation.
     """
