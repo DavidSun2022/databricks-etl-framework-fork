@@ -1,4 +1,4 @@
-from base_class.delta_writer import DeltaWriter, WriteMode, TriggerMode
+from pipelines.base_class.delta_writer import DeltaWriter, WriteMode, TriggerMode
 
 class AutoloaderDeltaWriter(DeltaWriter):
     # Constructor inherits from DeltaWriter

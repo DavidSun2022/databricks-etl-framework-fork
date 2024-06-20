@@ -8,13 +8,9 @@
 
 # COMMAND ----------
 
+
 from pipelines.shared_utils.autoloader_helper import generated_autoloader_schema_path
 from pipelines.shared_utils.autoloader_delta_writer import AutoloaderDeltaWriter
-
-# COMMAND ----------
-
-
-from pipelines.shared_utils.autoloader_helper import generated_autoloader_schema_path
 
 # [User Input Required] Set the ingest location.
 ingest_location = "dbfs:/databricks-datasets/nyctaxi/tripdata/yellow"
@@ -69,25 +65,20 @@ df.createOrReplaceTempView("tmp_view")
 output_df = _sqldf
 
 # [User Input Required] Target Location
-catalog = ""
-schema = ""
-table = ""
+datalake_location:str = ""
+uc_namespace_location:str = ""
 
 # [User Input Required] Configs
-write_mode = WriteMode.SCD1
-refresh_mode = RefreshMode.FULL
-trigger_mode = TriggerMode.TRIGGERED
+write_mode = ""
+trigger_mode = ""
 
-# COMMAND ----------
+# Instantiate writer classs instance
+csv_writer: AutoloaderDeltaWriter = AutoloaderDeltaWriter()
 
-# Write data into the Data Lake and/or UC
-csv_writer: AutoloaderWriter = AutoloaderWriter(output_df)
-csv_writer.write_uc_external_table(
-    uc_catalog=catalog,
-    uc_schema=schema,
-    uc_table=table,
-    owner="",
-    write_mode=write_mode,
-    refresh_mode=refresh_mode,
-    trigger_mode=trigger_mode,
-)
+# [User Input Required] Write data.
+csv_writer.write_append()
+
+# Other options include
+# csv_writer.write_overwrite()
+# csv_writer.write_scd_1()
+# csv_writer.write_scd_2()
