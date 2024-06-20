@@ -2,6 +2,7 @@ from typing import Protocol, List
 from pyspark.sql import DataFrame
 from delta.tables import *
 from abc import ABC, abstractmethod
+from enum import Enum
 
 
 class WriteMode(Enum):
