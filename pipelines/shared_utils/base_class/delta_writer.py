@@ -19,20 +19,18 @@ class TriggerMode(Enum):
     BATCH = "batch"
 
 
-class StreamingDeltaWriter(ABC):
+class DeltaWriter(ABC):
     """
     A class to write data into the Data Lake in Delta format. It supports writing directly to the Data Lake, UC External Tables, and UC Managed Tables.
 
     This class supports Appends, Overwrites, SCD Type I and SCD Type II operations.
-
-    This class requires a Streaming DataFrame as input i.e. Autoloader.
 
     ...
 
     Attributes
     ----------
     df : DataFrame
-       The DataFrame to write to the Data Lake. This must be a Streaming DataFrame.
+       The DataFrame to write to the Data Lake.
 
     write_mode : WriteMode
        This specifies where the data should be written to. Options are: DATA_LAKE_PATH, UC_EXTERNAL_TABLE, UC_MANAGED_TABLE
