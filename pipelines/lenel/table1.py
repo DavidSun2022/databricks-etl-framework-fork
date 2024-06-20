@@ -8,7 +8,7 @@
 
 # COMMAND ----------
 
-from pipelines.shared_utils.writers import AutoloaderWriter, WriteMode, RefreshMode, TriggerMode
+from ingestion_framework.pipelines.shared_utils.delta_writer import AutoloaderWriter, WriteMode, RefreshMode, TriggerMode
 from pipelines.shared_utils.autoloader_helper import generated_autoloader_schema_path
 
 # [User Input Required] Set the ingest location.

@@ -8,7 +8,7 @@
 
 # COMMAND ----------
 
-from pipelines.shared_utils.writers import AutoloaderWriter, WriteMode, RefreshMode, TriggerMode
+from ingestion_framework.pipelines.shared_utils.delta_writer import AutoloaderWriter, WriteMode, RefreshMode, TriggerMode
 from pipelines.shared_utils.autoloader_helper import generated_autoloader_schema_path
 
 # [User Input Required] Set the ingest location.
@@ -49,7 +49,7 @@ df.createOrReplaceTempView("tmp_view")
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC SELECT *
+# MAGIC SELECT * 
 # MAGIC FROM
 # MAGIC tmp_view
 
@@ -69,8 +69,8 @@ schema = ""
 table = ""
 
 # [User Input Required] Configs
-write_mode = WriteMode.SCD1
-refresh_mode = RefreshMode.FULL
+write_mode = WriteMode.APPEND
+refresh_mode = RefreshMode.INCREMENTAL
 trigger_mode = TriggerMode.TRIGGERED
 
 # COMMAND ----------
@@ -81,7 +81,6 @@ csv_writer.write_uc_external_table(
     uc_catalog=catalog,
     uc_schema=schema,
     uc_table=table,
-    owner="",
     write_mode=write_mode,
     refresh_mode=refresh_mode,
     trigger_mode=trigger_mode,
