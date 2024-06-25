@@ -24,6 +24,9 @@ class DeltaWriter(ABC):
     trigger_mode : TriggerMode
        This specifies how the data should be written. Options are: CONTINUOUS, BATCH
 
+    cluster_by_cols : List[str] (Optional)
+       Which columns to cluster by using Liquid.
+
     data_lake_path : str (Optional)
        Required if write_mode is DATA_LAKE_PATH. The path to write the data to in the Data Lake i.e. abfss://<container>@<storage_account>.dfs.core.windows.net/
 
@@ -55,12 +58,14 @@ class DeltaWriter(ABC):
         df: DataFrame,
         write_mode: WriteMode = WriteMode.UC_EXTERNAL_TABLE,
         trigger_mode: TriggerMode = TriggerMode.BATCH,
+        cluster_by_cols: List[str] = [],
         data_lake_path: str = None,
         uc_namespace: str = None,
     ):
         self.df = df
         self.write_mode = write_mode
         self.trigger_mode = trigger_mode
+        self.cluster_by_cols = cluster_by_cols
         self.data_lake_path = data_lake_path
         self.uc_namespace = uc_namespace
         
@@ -73,6 +78,8 @@ class DeltaWriter(ABC):
 
         # Enable CDF by Default
         spark.conf.set("spark.databricks.delta.properties.defaults.enableChangeDataFeed", "true)
+
+        # TODO: Check to see if cluster by columns exist in the DataFrame
 
     @abstractmethod
     def __generate_streaming_checkpoint_path(self) -> str:
