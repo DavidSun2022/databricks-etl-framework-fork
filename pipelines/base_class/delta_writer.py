@@ -69,7 +69,10 @@ class DeltaWriter(ABC):
         if write_mode == WriteMode.UC_EXTERNAL_TABLE and data_lake_path is None and uc_namespace is None:
             raise ValueError("Data Lake Path and UC Namespace are required for Write Mode: UC_EXTERNAL_TABLE")
         if write_mode == WriteMode.UC_MANAGED_TABLE and uc_namespace is None:
-            raise ValueError("UC Namespace is required for Write Mode: UC_MANAGED_TABLE")        
+            raise ValueError("UC Namespace is required for Write Mode: UC_MANAGED_TABLE")      
+
+        # Enable CDF by Default
+        spark.conf.set("spark.databricks.delta.properties.defaults.enableChangeDataFeed", "true)
 
     @abstractmethod
     def __generate_streaming_checkpoint_path(self) -> str:
